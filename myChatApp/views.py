@@ -1,8 +1,7 @@
-from array import array
 import json
-import profile
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.contrib.auth import authenticate, login
 
 from .models import ChatMessage, Friend, Profile
 from .forms import ChatMessageForm
@@ -14,6 +13,21 @@ def index(request):
     friends = user.friends.all()
     context = {"user": user, "friends": friends}
     return render(request, "myChatApp/index.html", context)
+
+
+def loginPage(request):
+
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            print("logged in")
+            return redirect("index")
+
+    return render(request, "myChatApp/login_page.html")
 
 def detail(request, pk ):
     friend = Friend.objects.get(profile_id=pk)
