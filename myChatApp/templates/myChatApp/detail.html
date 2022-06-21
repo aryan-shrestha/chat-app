@@ -51,7 +51,8 @@
       <div class="chat-box-sent" id="chat-box-sent" style="display: none"></div>
     </div>
     <form action="" id="myform" method="POST">
-      {% csrf_token %} {{form.body}}
+      {% csrf_token %} 
+      {{form.body}}
       <button type="submit" id="submit">Send</button>
     </form>
   </div>
@@ -94,18 +95,59 @@
       },
       body: JSON.stringify(data),
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Success:",data)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
         let chatBody = document.getElementById("chat-body");
         let chatMessageBox = document.createElement("div");
         chatMessageBox.classList.add("chat-box-sent");
         chatMessageBox.innerText = data;
         chatBody.append(chatMessageBox);
+        document.getElementById("id_body").value = " ";
       })
       .catch((err) => {
         console.log("Error:", err);
       });
+  }
+
+  // receive messages
+
+  setInterval(receiveMessages, 2000);
+
+  let counter = "{{num}}";
+
+  function receiveMessages() {
+    let url = "{% url 'rec_msg' friend.profile.id %}";
+
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        
+        if(data.length == 0 ) {}
+        else {
+          let lastMsg = data[data.length-1]
+          if(counter == data.length){
+            console.log("There is no new chat");
+          }else{
+            let chatBody = document.getElementById("chat-body");
+            let chatMessageBox = document.createElement("div");
+            chatMessageBox.classList.add("chat-box-received");
+            chatMessageBox.innerText = lastMsg;
+            chatBody.append(chatMessageBox);
+          }
+        }
+
+        counter = data.length;
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+
+  // get chat notification
+  function chatNotification(){
+
   }
 </script>
 
